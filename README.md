@@ -39,8 +39,15 @@
 
 如果模型是 commodity、护城河是记忆与治理，那理性的路径不是去追最大的模型，而是**在最便宜、迭代最快的尺度（n=1）把内核做对，再向上放大**。一个人跑通这套架构，验证机制的成本只是一个 git 仓库加一点纪律。
 
+## 内核与相关
+
+这套架构的内核（provenance / drift / judgment / 反 silent-capture / calibration）来自一份更上游的 position paper —— 它把"人类判断与自进化 agent 之间那层缺失的内核"讲清楚；本仓库是它的**企业尺度延伸**。
+
+- [coevolution-kernel](https://github.com/hegu-1/coevolution-kernel) —— 内核 thesis（人类判断 ↔ 自进化 agent）
+- [personal-memory-vault-starter](https://github.com/hegu-1/personal-memory-vault-starter) —— n=1 尺度的可 clone 结构 starter
+
 ---
 
-_由 naze 整理。源自一个 n=1 的个人记忆系统 + 关于 provenance / drift / judgment / calibration 的公开 kernel 工作。结构开源 starter：[personal-memory-vault-starter](https://github.com/hegu-1/personal-memory-vault-starter)。_
+_由 naze 整理。源自一个 n=1 的个人记忆系统 + 关于 provenance / drift / judgment / calibration 的公开 kernel 工作。_
 
 _这是一份**参考架构**，推算自一个跑通的小尺度系统，不是任何特定大公司的真实内部架构。_
