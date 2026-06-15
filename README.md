@@ -8,6 +8,8 @@
 
 ---
 
+**Every AI OS — one person's or a 100,000-person company's — is the same seven-layer stack. Five layers are commodity. Two decide who wins: memory and governance. And the whole mechanism is provable at n=1, for the price of a git repo and some discipline.**
+
 ## TL;DR
 
 Every "AI OS" — whether it runs one person's life, a startup's operations, or a 100,000-person enterprise — is the same seven-layer stack. Five of those layers (compute, ingestion, models, action, orchestration) are **commodity**: everyone will have them, and they will converge. Two layers decide who wins:
@@ -16,6 +18,34 @@ Every "AI OS" — whether it runs one person's life, a startup's operations, or 
 - **⑦ Governance** — the kernel that lets autonomous agents act fast *without* silent drift, and makes that auditable. This is the real enterprise procurement gate.
 
 The architecture is **scale-invariant**. What changes from n=1 to enterprise is actor count, scale, and compliance — not the kernel. Which means the cheapest place to get the kernel right is the smallest scale.
+
+## The stack at a glance
+
+```mermaid
+flowchart TB
+  G["⑦ Governance — provenance · drift · audit · judgment gates · capability tokens"]
+  O["⑥ Orchestration — agent mesh · A2A · workflows · durable execution"]
+  E["⑤ Executor — tool gateway · MCP farm · permission-checked actions"]
+  B["④ Brain — models (swappable) · routing · fine-tunes · eval"]
+  M["③ Memory — provenance-tracked cognition · knowledge graph · role-scoped"]
+  S["② Sensor — ingestion · event bus · entry-time PII scrub"]
+  Sub["① Substrate — compute · data · identity / RBAC · network"]
+  G --- O --- E --- B --- M --- S --- Sub
+  classDef moat fill:#1f6feb,stroke:#1f6feb,color:#ffffff;
+  classDef commodity fill:#21262d,stroke:#30363d,color:#8b949e;
+  class G,M moat;
+  class O,E,B,S,Sub commodity;
+```
+
+The two blue layers — **③ Memory** and **⑦ Governance** — are the moat. The five grey layers are commodity: everyone gets them, and they converge.
+
+## Receipts
+
+Derived from a working system, not a slide. The mechanism has been run, not just argued:
+
+- **n=1, in production** — a human ↔ multi-AI workflow handling ~100 signals/day end-to-end, stable for 12+ months, >95% dedup, zero high-risk mis-sends. The architecture below is what that system *is*, generalized upward.
+- **The governance kernel, as shipped specs** — the six primitives in §4 aren't slideware; each is a published, standalone piece: [provenance-enforced-agent](https://github.com/hegu-1/provenance-enforced-agent) · [drift-aware-agent](https://github.com/hegu-1/drift-aware-agent) · [judgment-aware-agent](https://github.com/hegu-1/judgment-aware-agent) · [schema-coexistence-spec](https://github.com/hegu-1/schema-coexistence-spec) · [calibration-loop-protocol](https://github.com/hegu-1/calibration-loop-protocol) · [personal-ai-os-kernel](https://github.com/hegu-1/personal-ai-os-kernel).
+- **The n=1 structure, cloneable today** — [personal-memory-vault-starter](https://github.com/hegu-1/personal-memory-vault-starter): the smallest scale, runnable now.
 
 ---
 
