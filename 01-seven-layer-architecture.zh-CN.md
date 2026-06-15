@@ -54,7 +54,7 @@
 - **结论**：真 engineering，但有成熟开源；craft 在 router 把对的活给对的 agent。
 
 ## ⑦ 治理 Governance ★（第二护城河 + 采购门槛）
-见 [02 · 两条护城河与治理内核](02-护城河与治理.md)。
+见 [02 · 两条护城河与治理内核](02-moat-and-governance.zh-CN.md)。
 
 ---
 
