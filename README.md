@@ -1,55 +1,134 @@
-# 企业级 AI OS：一个架构，三个尺度
+# The Enterprise AI OS: One Architecture, Three Scales
 
-### 为什么护城河是「记忆」与「治理」，而不是模型
+### Why the moat is memory and governance — not the model
 
-> 一份自底向上的企业 AI 参考架构——从一个跑通的 n=1 系统推算出来，而不是从厂商 PPT 自顶向下。作者：naze。
+> A reference architecture for company-wide AI, derived bottom-up from a working n=1 system rather than top-down from a vendor deck. Author: naze.
 
-**中文** · **[English](README.en.md)**
+**English** · **[中文](README.zh-CN.md)**
 
 ---
 
 ## TL;DR
 
-任何「AI OS」——无论它运行的是一个人的生活、一家创业公司的运营，还是十万人的企业——本质都是**同一套七层栈**。其中五层（算力、接入、模型、行动、编排）是 **commodity**：人人都会有，且会卷到同质。真正决定胜负的是两层：
+Every "AI OS" — whether it runs one person's life, a startup's operations, or a 100,000-person enterprise — is the same seven-layer stack. Five of those layers (compute, ingestion, models, action, orchestration) are **commodity**: everyone will have them, and they will converge. Two layers decide who wins:
 
-- **③ 记忆** —— 组织积累的、专属的、带 provenance 的认知。模型之所以可换，正因为连续性住在这一层。
-- **⑦ 治理** —— 让自治 agent 跑得快**又不悄悄漂移**、且这一切可审计的内核。这是企业采购的真门槛。
+- **③ Memory** — the organization's accumulated, proprietary, provenance-tracked cognition. The model is interchangeable precisely because continuity lives here.
+- **⑦ Governance** — the kernel that lets autonomous agents act fast *without* silent drift, and makes that auditable. This is the real enterprise procurement gate.
 
-而且这套架构**尺度不变**。从 n=1 到企业，变的只是 actor 数、规模、合规——不是内核。这意味着：**把内核做对的最便宜的地方，是最小的尺度。**
-
-## 七层栈
-
-```
-⑦ 治理 Governance ★    provenance · drift · 合规审计 · judgment gate · capability token
-⑥ 编排 Orchestration   agent mesh · A2A 跨 BU · workflow · 调度 · durable execution
-⑤ 行动 Executor        工具网关 · MCP server farm · RPA · 权限校验 · 幂等/补偿
-④ 智能 Brain           模型层(可换) · 路由 · 微调 · 规则层 · eval
-③ 记忆 Memory ★        企业知识图 · role-scoped 视图 · 向量+图+时序   ← 第一护城河
-② 感知 Sensor          全渠道+全系统 ingestion · event bus · 入口脱敏
-① 基底 Substrate       算力 · 数据湖 · 组织身份/RBAC · 网络
-  ── 横切 PaaS：各 BU 自建 vertical agent · role-scoped digest · 信息损耗 router ──
-```
-
-## 目录
-
-- [01 · 七层架构](01-七层架构.md) —— 每层是什么、组件、agents、怎么失败
-- [02 · 两条护城河与治理内核](02-护城河与治理.md) —— 记忆 + 治理为什么不可复制
-- [03 · 一个架构，三个尺度](03-三个尺度.md) —— 个人 / 创业 / 大厂是同一件事
-- [04 · 落地、战略与边界](04-落地与边界.md) —— build sequence + 战略含义 + 这不是什么
-
-## 一句话
-
-如果模型是 commodity、护城河是记忆与治理，那理性的路径不是去追最大的模型，而是**在最便宜、迭代最快的尺度（n=1）把内核做对，再向上放大**。一个人跑通这套架构，验证机制的成本只是一个 git 仓库加一点纪律。
-
-## 内核与相关
-
-这套架构的内核（provenance / drift / judgment / 反 silent-capture / calibration）来自一份更上游的 position paper —— 它把"人类判断与自进化 agent 之间那层缺失的内核"讲清楚；本仓库是它的**企业尺度延伸**。
-
-- [coevolution-kernel](https://github.com/hegu-1/coevolution-kernel) —— 内核 thesis（人类判断 ↔ 自进化 agent）
-- [personal-memory-vault-starter](https://github.com/hegu-1/personal-memory-vault-starter) —— n=1 尺度的可 clone 结构 starter
+The architecture is **scale-invariant**. What changes from n=1 to enterprise is actor count, scale, and compliance — not the kernel. Which means the cheapest place to get the kernel right is the smallest scale.
 
 ---
 
-_由 naze 整理。源自一个 n=1 的个人记忆系统 + 关于 provenance / drift / judgment / calibration 的公开 kernel 工作。_
+## 1. The reframe
 
-_这是一份**参考架构**，推算自一个跑通的小尺度系统，不是任何特定大公司的真实内部架构。_
+Most "enterprise AI" conversations are stuck at the model layer: which LLM, how big, how cheap. That's the part that will commoditize fastest. The interesting structure is everything *around* the model.
+
+An AI OS is not a product. It's a **layered stack**, and the same stack recurs at every scale because the underlying problem is the same: take messy input from the world, decide, act, and **remember in a way that compounds** — without losing the human in the loop.
+
+Once you see it as a stack, two things follow: (a) you can reason about where the durable value is, and (b) you stop confusing "we have a model" with "we have an AI OS."
+
+## 2. The seven layers
+
+Bottom to top. For each: what it is, what's in it, the agents that live there, and how it fails.
+
+**① Substrate.** Compute (GPU pools + inference scheduling), data lake/lakehouse, organizational identity (SSO/RBAC/SCIM), network isolation, secrets. No agents — pure infrastructure. *Fails when:* identity is the root of permission, so if it's wrong everything downstream is wrong; and when the data lake silts into a swamp. *You buy this.*
+
+**② Sensor.** Ingestion from every channel and system — chat, email, tickets, meetings, docs, code, CRM, ERP, logs — onto a unified event bus with a schema registry. Agents: per-system connectors, a normalizer, dedup, and a **PII scrubber at the entry point** (entry-time redaction is the precondition for the memory layer's permissions). *Fails when:* source schemas drift silently, events duplicate or drop, or unscrubbed PII enters and poisons everything downstream. *You integrate this.*
+
+**③ Memory ★ — first moat.** Not a database — a living cognition substrate that every agent reads and writes, that consolidates and forgets, that carries provenance and confidence. It's layered like memory itself:
+
+```
+L4 telos       org objectives, the "why"          (human-authored)
+L3 semantic+procedural   concepts, SOPs, policies, the knowledge graph
+L2 working knowledge     projects, docs, settled conclusions
+L1 episodic    decisions, incidents, interactions  (org-scale "tracelets")
+L0 raw         all ingestion, immutable, provenance-stamped
+```
+
+Physically: a temporal **knowledge graph** (entities/relations with validity windows) + a **vector store** + a **document store**, queried as one hybrid. The hard, valuable part enterprises need that smaller systems don't: **permission travels with memory** — the same underlying graph projects differently per role and per business unit, and retrieval filters by permission *before* it returns, not after. A leak here isn't a bug, it's a data breach.
+
+Recall mimics human memory: association along graph edges (cross-BU edges are how you break information silos), lazy retrieval of only the activated-and-permitted sub-graph, salience/recency weighting, and continuous background **consolidation** (raw → episodic → semantic, dedup, merge, expire) balanced against compliance-driven retention and forgetting.
+
+Why it's a moat: it compounds (time can't be compressed), it's proprietary (nobody else has your org's cognition), and it's trusted (provenance + audit). The model is swappable *because* this layer holds continuity.
+
+**④ Brain.** The model capability layer plus how you choose and use models: foundation models (in-house + external, hot-swappable), a router that picks by task/cost/sensitivity/latency, domain fine-tunes/adapters, a rule layer (don't send trivial work to a large model), and inference caching. Agents: model-router, domain-experts, rule-engine, eval-harness. *Fails when:* everything routes to the biggest model (slow and expensive), fine-tunes overfit or catastrophically forget, or sensitive data flows to an external model. The craft is in routing and adaptation — but the model itself is commodity. **The real differentiation isn't the model; it's the context Memory feeds it.**
+
+**⑤ Executor.** Turning decisions into real-world actions: an API/tool gateway, an **MCP server farm** exposing the whole company's tools uniformly, RPA, approval flows, per-action permission checks (every action passes RBAC + governance), idempotency/retry/compensation. Agents: tool-gateway, action-executor, approval-router. *Fails when:* actions execute beyond authority (governance must gate *before* execution, never filter after), non-idempotent operations repeat (double charges), or tools fragment because there's no unified gateway. *You integrate this; MCP is the 2026 standard.*
+
+**⑥ Orchestration.** Multi-agent coordination, cross-BU delegation (agent-to-agent via discoverable agent cards), workflow engines, scheduling, durable execution for long-running and crash-resilient processes, and sagas/compensation. Agents: orchestrator, cross-BU router, scheduler. *Fails when:* orchestration deadlocks or loops, responsibility drifts (work nobody's agent owns), long-running state is lost, or you over-orchestrate (splitting what one agent could do). Mature open-source exists; the craft is in routing the right work to the right agent.
+
+**⑦ Governance ★ — second moat, and the procurement gate.** This is covered in depth below.
+
+Across all of it, a **platform (PaaS) layer**: each business unit builds its own vertical agents on the shared substrate; role-scoped digests give each role its own view (executives see conclusions / anomalies / decisions); an information-loss router moves the right signal to the right person or agent.
+
+## 3. The two moats
+
+The five commodity layers will converge across vendors — everyone gets models, a collaboration surface, and a cloud. The gap opens in Memory and Governance.
+
+Memory is the moat because **cognition accumulates and can't be copied**. Governance is the moat because **trustworthy autonomy is the thing nobody can ship safely yet** — and trust infrastructure compounds with audit history, aligns with regulation (first movers set the standard), and is entangled with Memory (provenance lives there). The two lock together.
+
+## 4. The governance kernel
+
+The hardest problem in an enterprise AI OS is not capability. It's that **self-evolving agents plus persistent memory drift** — toward stale judgment, silent capture (the org's "memory" quietly diverging from what humans actually decided), and unauditable mutations. The tension is speed versus control. The resolution is a kernel that keeps the speed and eliminates the *silent* part of drift through provenance.
+
+Six primitives:
+
+- **Provenance-enforced** — every mutation emits its origin (who/what/why/source). Non-negotiable; this *is* the audit trail, by construction.
+- **Drift-aware** — agents are instrumented for execution-overrun, abstraction-drift, and premature-closure, and these are surfaced, not suppressed.
+- **Judgment-aware** — persistent memory distinguishes *current judgment* from *stale opinion*; judgments expire.
+- **Schema-coexistence (core/edge)** — stable judgment lives in a slow, human-ratified core; evolving capability lives in a fast, agent-driven edge; promotion from edge to core is provenance-mediated.
+- **Calibration loop** — external feedback → tagged source → schema delta → **human ratifies** → audit trail. This is how the org learns without drifting.
+- **Capability tokens** — boundary-crossing actions require scoped, expiring, logged tokens; humans hold the keys; no token means refuse-and-surface.
+
+Enterprise adds: **risk-tiered judgment gates** (route by risk × reversibility × blast-radius — auto for low, human-ratify for medium, multi-party for high, so you don't over-gate and kill the speed benefit), **compliance mapping** (policies and regulations compiled into machine-checkable rules, with audit evidence generated automatically), observability and evaluation across thousands of agents, delegation chains (which agent acts on whose authority, revocably), and incident rollback (every action reversible or compensable).
+
+The deep point: the kernel is **the missing layer between human judgment and self-evolving agents.** It's what lets an organization deploy autonomous agents *without* losing human accountability. Without it, no serious enterprise will turn the agents loose — which is why governance, not capability, is the real gate.
+
+## 5. One architecture, three scales
+
+The same stack appears at n=1 (an individual's memory vault), at startup scale (an operations OS), and at enterprise scale. What's invariant is the kernel; what varies is scale and compliance.
+
+| Dimension | n=1 (personal) | startup (ops-OS) | enterprise |
+|---|---|---|---|
+| Sensor | hand-fed + session | multi-channel scan | full event platform |
+| Brain | one render-head | model + rule layer | model layer + routing + tuning |
+| Executor | hands + scripts | CLI + a coding agent | tool gateway + MCP farm |
+| Memory ★ | markdown vault | archive + context | knowledge graph (role-scoped) |
+| Actors | one person + AI render-heads | one builder + team | whole company + agent mesh |
+| Permissions | implicit | role/team | org RBAC + compliance |
+| Governance ⑦ | tokens + self-review | dry-run + human-in-loop | regulatory gate + audit platform |
+| Anti-silent-capture | you author decisions | humans review | humans ratify + enforced provenance |
+
+**Invariant (the kernel):** the four-layer skeleton; memory-as-container (continuity lives in memory, not the model); provenance on every write; human-authored decisions vs. agent-written connective tissue; phase alignment / information-loss reduction as the telos; and the fact that the moats are always Memory and Governance.
+
+**Variant (only these):** script → platform → platform-of-platforms; one render-head → multi-AI → agent mesh; implicit permissions → RBAC → org RBAC + compliance; self-review → human-in-loop → regulatory forcing function; hundreds of nodes → millions.
+
+Every variant is a *scale/compliance* dimension. Every invariant is a *kernel* dimension. Get the mechanism wrong and scale just makes it wrong faster; get it right and the rest is engineering and compliance.
+
+## 6. Build sequence
+
+The same phased rollout at any scale: (1) prove one vertical (or BU) end-to-end; (2) replicate to two or three to prove the substrate generalizes — the platform layer forms here; (3) let signals flow back and across verticals; (4) add the cross-cutting OS layer — shared memory graph, cross-BU router, role/exec digests, governance. Only at step 4 does it stop being N stacked automations and become an OS, because that's when information stops getting stuck between silos. **Provenance comes first within every step** — without it, everything above is built on sand.
+
+## 7. What this means
+
+If the model is commodity and the moats are Memory and Governance, then the rational path is not to chase the biggest model. It's to get the kernel — memory-as-container, provenance, judgment preservation, anti-silent-capture, calibration — right at the **cheapest, fastest-iterating scale**, and scale it up. n=1 is that scale. A single person running this architecture validates the mechanism for the price of a git repo and some discipline.
+
+The enterprises have the scale and the compliance. What most don't yet have is a kernel they've thought through — they're still competing on the commodity layers. The architecture above is an attempt to name where the durable value actually sits.
+
+## 8. What this is not
+
+This is a **reference architecture derived from a working small-scale system**, not the internal architecture of any specific large company. The layer mapping to specific vendors is illustrative. The claim is not "I built enterprise AI OS"; it's that the *mechanism* of the two moats is scale-invariant and can be validated cheaply — and that capability, the thing everyone is racing on, is the part that commoditizes.
+
+---
+
+## Kernel & related
+
+The kernel this architecture rests on (provenance / drift / judgment / anti-silent-capture / calibration) is laid out in an upstream position paper — the missing layer between human judgment and self-evolving agents. This repo is its **enterprise-scale extension**.
+
+- [coevolution-kernel](https://github.com/hegu-1/coevolution-kernel) — the kernel thesis (human judgment ↔ self-evolving agents)
+- [personal-memory-vault-starter](https://github.com/hegu-1/personal-memory-vault-starter) — the n=1-scale structure, cloneable
+- [中文版](README.zh-CN.md) — Chinese version of this paper
+
+---
+
+*By naze. Derived from a personal memory-vault system (n=1) and the open kernel work on provenance, drift, judgment, and calibration.*
