@@ -1,0 +1,29 @@
+{
+  "$comment": "Routing table template. Model names are placeholders — bind them to your pool. The invariant is the SHAPE: task class x sensitivity -> tier, sensitivity as a hard constraint.",
+  "version": "1.0",
+  "model_tiers": {
+    "rules": "no model — deterministic rule layer (regex / lookup / threshold)",
+    "small": "cheap fast model, internal or external",
+    "large": "frontier model, external API",
+    "internal_only": "self-hosted model, no data leaves the boundary"
+  },
+  "sensitivity_constraints": {
+    "public": ["rules", "small", "large", "internal_only"],
+    "internal": ["rules", "small", "large", "internal_only"],
+    "confidential": ["rules", "small", "large", "internal_only"],
+    "regulated": ["rules", "internal_only"]
+  },
+  "routes": [
+    {"task": "classify.intake", "prefer": "rules", "fallback": "small", "cache": true},
+    {"task": "draft.reply", "prefer": "small", "fallback": "large", "cache": false},
+    {"task": "summarize.thread", "prefer": "small", "fallback": "large", "cache": true},
+    {"task": "reason.multi_step", "prefer": "large", "fallback": null, "cache": false},
+    {"task": "extract.regulated_form", "prefer": "internal_only", "fallback": null, "cache": false,
+     "note": "sensitivity=regulated: external tiers are forbidden by the constraint table above, whatever this route says"}
+  ],
+  "invariants": [
+    "sensitivity_constraints are enforced BEFORE route preference — a route may never widen them",
+    "every route change goes through the eval gate (templates/eval-suite.md) before deploy",
+    "router decisions are logged with task, tier chosen, and why — auditable by ⑦"
+  ]
+}

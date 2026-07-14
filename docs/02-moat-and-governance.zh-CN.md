@@ -1,6 +1,6 @@
 # 02 · 两条护城河与治理内核
 
-> [English (full paper) →](README.md) · [← 中文总览](README.zh-CN.md)
+> [English (full paper) →](../README.md) · [← 中文总览](../README.zh-CN.md)
 
 ## 两条护城河
 

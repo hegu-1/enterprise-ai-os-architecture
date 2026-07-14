@@ -1,0 +1,50 @@
+{
+  "$comment": "Test cases for Meridian's risk-policy.json — run in CI. The compliance BU owns this file; changing policy without updating cases fails the build.",
+  "cases": [
+    {
+      "name": "dispatch agent reroutes a linehaul leg (org-visible, reversible)",
+      "action": {"action": "dispatch.reroute", "blast_radius": "org", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T2", "expect_gate": "human_ratify"
+    },
+    {
+      "name": "warehouse slotting adjustment (routine, reversible)",
+      "action": {"action": "wms.adjust_slotting", "blast_radius": "team", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T1", "expect_gate": "auto_with_review"
+    },
+    {
+      "name": "claims payout to an external party",
+      "action": {"action": "claims.payout", "blast_radius": "external", "data_sensitivity": "regulated", "reversible": false},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    },
+    {
+      "name": "small internal claims ledger correction still floors at T3 by rule",
+      "action": {"action": "claims.payout_adjustment", "blast_radius": "team", "data_sensitivity": "confidential", "reversible": true},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    },
+    {
+      "name": "updating a driver record (regulated data)",
+      "action": {"action": "driver_records.update", "blast_radius": "team", "data_sensitivity": "regulated", "reversible": true},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    },
+    {
+      "name": "agent attempts bulk driver-record export — forbidden outright",
+      "action": {"action": "driver_records.export", "blast_radius": "org", "data_sensitivity": "regulated", "reversible": true},
+      "expect_tier": "T3", "expect_gate": "forbid"
+    },
+    {
+      "name": "editing a compiled compliance rule",
+      "action": {"action": "compliance.rule_update", "blast_radius": "org", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    },
+    {
+      "name": "episodic memory write by any BU agent",
+      "action": {"action": "memory.write.L1", "blast_radius": "team", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T1", "expect_gate": "auto_with_review"
+    },
+    {
+      "name": "mass customer delay notice",
+      "action": {"action": "customer_notice.send_bulk", "blast_radius": "external_mass", "data_sensitivity": "internal", "reversible": false},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    }
+  ]
+}

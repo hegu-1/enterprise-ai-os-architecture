@@ -1,6 +1,6 @@
 # 01 · 七层架构
 
-> [English (full paper) →](README.md) · [← 中文总览](README.zh-CN.md)
+> [English (full paper) →](../README.md) · [← 中文总览](../README.zh-CN.md)
 
 自底向上。每层：是什么 / 组件 / 住在里面的 agents / 怎么失败 / 是买、是集成、还是赢。
 

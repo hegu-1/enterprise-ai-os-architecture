@@ -1,0 +1,33 @@
+{
+  "$comment": "Retention & consolidation policy template. Numbers are illustrative defaults — replace with your legal/compliance requirements per jurisdiction.",
+  "version": "1.0",
+  "levels": {
+    "L0_raw": {
+      "retention": "per data-class below",
+      "consolidation": "continuous -> L1; L0 itself is immutable and append-only"
+    },
+    "L1_episodic": {
+      "retention": "24 months rolling",
+      "consolidation": "weekly: dedup, merge near-duplicates, promote recurring patterns to L2 as agent_inferred"
+    },
+    "L2_working": {
+      "retention": "until_superseded",
+      "consolidation": "on project close: settled conclusions promoted to L3 via human ratification"
+    },
+    "L3_semantic": {"retention": "until_superseded", "consolidation": "quarterly review of expired validity windows"},
+    "L4_telos": {"retention": "permanent", "consolidation": "human-authored only; never machine-modified"}
+  },
+  "data_classes": {
+    "public": {"l0_retention_days": 730},
+    "internal": {"l0_retention_days": 730},
+    "confidential": {"l0_retention_days": 365},
+    "regulated": {
+      "l0_retention_days": 90,
+      "notes": "or as your regulator requires; deletion must reach graph nodes, documents AND embeddings — verify with a deletion audit"
+    }
+  },
+  "deletion_invariants": [
+    "a compliance delete enumerates every projection of the node (graph, doc store, vector store, caches) and deletes all of them",
+    "deletion itself emits a provenance record (⑦) — you can prove WHAT was deleted and WHY without keeping the content"
+  ]
+}

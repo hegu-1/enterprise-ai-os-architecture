@@ -1,0 +1,23 @@
+{
+  "$comment": "Meridian instance of layers/07-governance/templates/risk-tier-policy.json. Fictional. Same dimensions as BrightPath — the kernel is scale-invariant; what grows is the rule set, and even that stays SHORT because the dimensions carry the load.",
+  "version": "3.7",
+  "dimensions": {
+    "blast_radius": {"self": 0, "team": 1, "org": 2, "external": 2, "external_mass": 3},
+    "data_sensitivity": {"public": 0, "internal": 0, "confidential": 1, "regulated": 3},
+    "irreversible_floor": 2
+  },
+  "tier_gates": {
+    "T0": "auto",
+    "T1": "auto_with_review",
+    "T2": "human_ratify",
+    "T3": "multi_party"
+  },
+  "rules": [
+    {"match_action": "claims.payout*", "min_tier": "T3", "why": "money to external parties: two approvers or a capability token, always"},
+    {"match_action": "finance.*", "min_tier": "T2", "why": "money movement never below human_ratify"},
+    {"match_action": "driver_records.export", "gate": "forbid", "why": "bulk export of regulated driver data is forbidden to agents in any tier; humans use the compliance workbench"},
+    {"match_action": "compliance.rule_update", "min_tier": "T3", "why": "changing compiled compliance rules is a policy.update-class action"},
+    {"match_action": "policy.update", "min_tier": "T3", "why": "changing the rules is the highest-risk action in the system"},
+    {"match_action": "memory.write.L4", "gate": "forbid", "why": "telos is human-authored only — invariant at every scale"}
+  ]
+}

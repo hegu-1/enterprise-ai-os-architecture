@@ -1,0 +1,48 @@
+{
+  "$comment": "Provenance record — emitted by EVERY mutation in the stack: memory writes (③), tool calls (⑤), workflow steps (⑥), policy changes (⑦). Validated by tools/validate_provenance.py.",
+  "type": "object",
+  "required": ["record_id", "ts", "actor", "action", "target", "origin", "risk_tier", "gate", "reversible"],
+  "properties": {
+    "record_id": {"type": "string"},
+    "ts": {"type": "string", "description": "ISO 8601 UTC"},
+    "actor": {
+      "type": "object",
+      "required": ["kind", "id"],
+      "properties": {
+        "kind": {"enum": ["human", "agent"]},
+        "id": {"type": "string", "description": "principal from ①"},
+        "on_behalf_of": {"type": "string", "description": "required when kind=agent — the delegation chain root"}
+      }
+    },
+    "action": {"type": "string", "description": "verb.object, e.g. memory.write / billing.issue_refund / policy.update"},
+    "target": {"type": "string", "description": "what was acted on: node_id, account ref, resource"},
+    "origin": {
+      "type": "object",
+      "required": ["why", "source"],
+      "properties": {
+        "why": {"type": "string", "description": "the intent — one line a future auditor can act on"},
+        "source": {"type": "string", "description": "upstream trigger: event_id (②), workflow step (⑥), human request"}
+      }
+    },
+    "risk_tier": {"enum": ["T0", "T1", "T2", "T3"]},
+    "reversible": {"type": "boolean"},
+    "gate": {
+      "type": "object",
+      "required": ["mode"],
+      "properties": {
+        "mode": {"enum": ["auto", "human_ratify", "multi_party", "forbid"]},
+        "approved_by": {"type": "array", "items": {"type": "string"}, "description": "human principal ids; ≥1 for human_ratify, ≥2 distinct for multi_party"},
+        "capability_token": {"type": "string", "description": "token id, if this action was authorized by token instead of approvers"}
+      }
+    },
+    "workflow_id": {"type": "string", "description": "ties multi-step processes into one auditable chain (⑥)"},
+    "dry_run": {"type": "boolean", "description": "true = the action was simulated, not executed"}
+  },
+  "cross_field_rules": [
+    "actor.kind == agent  => actor.on_behalf_of is required",
+    "risk_tier in [T0,T1] => reversible must be true",
+    "risk_tier == T2      => gate.mode in [human_ratify, multi_party] and approved_by non-empty",
+    "risk_tier == T3      => gate.mode == multi_party with ≥2 distinct approvers, OR gate.capability_token present",
+    "gate.mode == forbid  => record documents a REFUSED action; dry_run/refusals are logged too"
+  ]
+}

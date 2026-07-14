@@ -1,0 +1,23 @@
+{
+  "$comment": "Unified event envelope — every connector normalizes into this shape before the bus. Machine-checked by tools/pii_scrub.py --check and your schema registry.",
+  "type": "object",
+  "required": ["event_id", "ts", "source", "kind", "payload", "pii_scrubbed"],
+  "properties": {
+    "event_id": {"type": "string", "description": "globally unique; content-hash based so replays dedup"},
+    "ts": {"type": "string", "description": "ISO 8601, UTC"},
+    "source": {
+      "type": "object",
+      "required": ["system", "connector_version"],
+      "properties": {
+        "system": {"type": "string", "description": "e.g. helpdesk / crm / chat / erp / ci"},
+        "channel": {"type": "string", "description": "sub-channel within the system, if any"},
+        "connector_version": {"type": "string", "description": "schema drift is caught by pinning this"}
+      }
+    },
+    "kind": {"type": "string", "description": "org-level taxonomy: message / ticket / transaction / incident / document / metric"},
+    "actor_ref": {"type": "string", "description": "opaque reference to the acting identity (① substrate), never inline personal data"},
+    "payload": {"type": "object", "description": "source-specific body. All free-text fields MUST have passed the PII scrubber."},
+    "pii_scrubbed": {"type": "boolean", "description": "set true by the scrubber only; events with false are quarantined, never persisted"},
+    "dedup_key": {"type": "string", "description": "cross-channel key: the same real-world signal via two channels shares this"}
+  }
+}

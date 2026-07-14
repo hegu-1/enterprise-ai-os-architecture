@@ -1,6 +1,6 @@
 # 03 · 一个架构，三个尺度
 
-> [English (full paper) →](README.md) · [← 中文总览](README.zh-CN.md)
+> [English (full paper) →](../README.md) · [← 中文总览](../README.zh-CN.md)
 
 同一套栈出现在三个尺度：n=1（一个人的记忆系统）、创业公司（一套运营 OS）、大厂（公司级 AI OS）。**不变的是内核，变的只是规模与合规。**
 

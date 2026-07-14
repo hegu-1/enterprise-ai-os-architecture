@@ -1,0 +1,34 @@
+{
+  "$comment": "Memory node envelope — every write to layer ③ carries this metadata, whatever the physical store (graph node, doc, vault file frontmatter).",
+  "type": "object",
+  "required": ["node_id", "level", "authority", "provenance", "created_ts", "scope"],
+  "properties": {
+    "node_id": {"type": "string"},
+    "level": {"enum": ["L0_raw", "L1_episodic", "L2_working", "L3_semantic", "L4_telos"]},
+    "authority": {
+      "enum": ["human_authored", "human_ratified", "agent_inferred"],
+      "description": "promotion upward (inferred -> ratified) only via the calibration loop (⑦); L4 accepts human_authored only"
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["who", "source"],
+      "properties": {
+        "who": {"type": "string", "description": "principal id from ① — human or agent"},
+        "source": {"type": "string", "description": "event_id(s) from ②, or the upstream node_id(s) this consolidates"},
+        "why": {"type": "string"}
+      }
+    },
+    "created_ts": {"type": "string", "description": "ISO 8601 UTC"},
+    "valid_until": {"type": "string", "description": "ISO 8601 or 'until_superseded'. Judgments EXPIRE; retrieval discounts or drops stale nodes"},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "scope": {
+      "type": "object",
+      "required": ["visibility"],
+      "properties": {
+        "visibility": {"type": "string", "description": "role or BU scope key, resolved against ① RBAC at retrieval time — BEFORE returning results"},
+        "cross_bu_edges": {"type": "array", "items": {"type": "string"}, "description": "node_ids in other BUs this connects to — how silos break"}
+      }
+    },
+    "supersedes": {"type": "string", "description": "node_id this replaces; the old node keeps existing with valid_until set — history is never silently rewritten"}
+  }
+}

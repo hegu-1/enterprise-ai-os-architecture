@@ -1,0 +1,21 @@
+{
+  "$comment": "BrightPath instance of layers/07-governance/templates/risk-tier-policy.json. Fictional. CI runs gate-cases.json against this file.",
+  "version": "1.2",
+  "dimensions": {
+    "blast_radius": {"self": 0, "team": 1, "org": 2, "external": 2, "external_mass": 3},
+    "data_sensitivity": {"public": 0, "internal": 0, "confidential": 1, "regulated": 3},
+    "irreversible_floor": 2
+  },
+  "tier_gates": {
+    "T0": "auto",
+    "T1": "auto_with_review",
+    "T2": "human_ratify",
+    "T3": "multi_party"
+  },
+  "rules": [
+    {"match_action": "billing.*", "min_tier": "T2", "why": "money movement never below human_ratify, whatever the computed score"},
+    {"match_action": "policy.update", "min_tier": "T3", "why": "changing the rules is the highest-risk action in the system"},
+    {"match_action": "memory.write.L4", "gate": "forbid", "why": "telos is founder-authored only; agents propose in L2, never write L4"},
+    {"match_action": "cms.publish", "min_tier": "T2", "why": "course content is the product; publishing is a human act (matches ① RBAC deny)"}
+  ]
+}

@@ -30,12 +30,24 @@
   ── 横切 PaaS：各 BU 自建 vertical agent · role-scoped digest · 信息损耗 router ──
 ```
 
-## 目录
+## 怎么用这个仓库
 
-- [01 · 七层架构](01-seven-layer-architecture.zh-CN.md) —— 每层是什么、组件、agents、怎么失败
-- [02 · 两条护城河与治理内核](02-moat-and-governance.zh-CN.md) —— 记忆 + 治理为什么不可复制
-- [03 · 一个架构，三个尺度](03-three-scales.zh-CN.md) —— 个人 / 创业 / 大厂是同一件事
-- [04 · 落地、战略与边界](04-adoption-and-boundaries.zh-CN.md) —— build sequence + 战略含义 + 这不是什么
+这不只是论文——是一套**可直接复制的落地包**（新内容以英文为主），CI 在每次 push 时用仓库自带的校验工具跑一遍示例环境（badge 绿 = 你要抄的东西真的能跑）：
+
+| 你想… | 去哪 |
+|---|---|
+| 在自己公司落地，从 ① 基底层开始 | [`adoption/playbook.md`](adoption/playbook.md) —— 四个阶段，每阶段有退出标准 |
+| 先摸清自己现在在哪 | [`adoption/maturity-model.md`](adoption/maturity-model.md) —— 按层自评 0–3 分 |
+| 搭某一层 | [`layers/01-substrate/`](layers/01-substrate/) → [`07-governance/`](layers/07-governance/) —— 每层：建设指南 + 可复制模板 + 验收清单 |
+| 看一个跑起来的整体 | [`examples/`](examples/) —— 两个**全虚构**但生产形态的环境：BrightPath（45 人创业公司）与 Meridian（1.2 万人企业），同一内核、不同尺度 |
+| 验证它真的能跑 | `./checks.sh` —— 零依赖校验器（风险分级 gate / provenance 审计 / PII 脱敏），与 CI 跑的是同一套 |
+
+## 论文目录
+
+- [01 · 七层架构](docs/01-seven-layer-architecture.zh-CN.md) —— 每层是什么、组件、agents、怎么失败
+- [02 · 两条护城河与治理内核](docs/02-moat-and-governance.zh-CN.md) —— 记忆 + 治理为什么不可复制
+- [03 · 一个架构，三个尺度](docs/03-three-scales.zh-CN.md) —— 个人 / 创业 / 大厂是同一件事
+- [04 · 落地、战略与边界](docs/04-adoption-and-boundaries.zh-CN.md) —— build sequence + 战略含义 + 这不是什么
 
 ## 一句话
 

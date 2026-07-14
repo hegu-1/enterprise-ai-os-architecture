@@ -1,0 +1,45 @@
+{
+  "$comment": "Saga-style workflow template — every step names its compensation or is marked irreversible (which raises its ⑦ risk tier). State is checkpointed by the engine, not held in agent context.",
+  "workflow": "refund.request_to_resolution",
+  "version": "1.0",
+  "trigger": {"event_kind": "ticket", "condition": "intent == refund_request"},
+  "timeout": "72h",
+  "on_timeout": {"escalate_to": "ops_specialist", "park_state": true},
+  "steps": [
+    {
+      "id": "validate",
+      "agent": "agent.triage",
+      "action": "verify purchase record + refund eligibility (read-only)",
+      "compensation": null
+    },
+    {
+      "id": "decide",
+      "agent": "agent.billing-reconciler",
+      "action": "compute refund amount, write recommendation to memory L1",
+      "compensation": "supersede the L1 node (③ supersedes field) — history preserved"
+    },
+    {
+      "id": "approve",
+      "gate": "⑦ risk gate on billing.issue_refund — expected: human_ratify (irreversible, external)",
+      "parked_is_success": true,
+      "sla": "24h",
+      "on_reject": {"goto": "notify_denied"}
+    },
+    {
+      "id": "execute",
+      "tool": "billing.issue_refund",
+      "irreversible": true,
+      "compensation": "NONE — forward-only; errors are corrected by a new transaction, never a silent reversal"
+    },
+    {
+      "id": "notify",
+      "tool": "email.send_customer",
+      "compensation": "correction email",
+      "note": "draft by agent, send passes the same ⑦ gate"
+    }
+  ],
+  "invariants": [
+    "exactly one owner at every moment: an agent, a human approval queue, or an escalation target",
+    "every step emits a provenance record; the workflow id ties them into one auditable chain"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "$comment": "Capability token — scoped, expiring, logged authorization for a boundary-crossing action. Humans hold the keys; an agent that lacks a token for a gated action refuses and surfaces, it does not improvise.",
+  "type": "object",
+  "required": ["token_id", "issued_by", "issued_to", "scope", "expires_ts", "single_use"],
+  "properties": {
+    "token_id": {"type": "string"},
+    "issued_by": {"type": "string", "description": "human principal — tokens are never machine-issued"},
+    "issued_to": {"type": "string", "description": "agent principal, exactly one"},
+    "scope": {
+      "type": "object",
+      "required": ["action", "target"],
+      "properties": {
+        "action": {"type": "string", "description": "ONE action, e.g. billing.issue_refund — no wildcards"},
+        "target": {"type": "string", "description": "the specific resource/entity; 'any' is not a value"},
+        "limits": {"type": "object", "description": "action-specific ceilings, e.g. {\"max_amount\": 200}"}
+      }
+    },
+    "expires_ts": {"type": "string", "description": "ISO 8601; short — hours, not weeks"},
+    "single_use": {"type": "boolean", "description": "default true; multi-use tokens require a documented why"},
+    "revoked": {"type": "boolean"},
+    "why": {"type": "string", "description": "the human's stated reason — copied into every provenance record this token authorizes"}
+  },
+  "invariants": [
+    "no token => refuse and surface; the refusal itself is logged as a provenance record with gate.mode=forbid",
+    "token use emits a provenance record referencing token_id; issuance and revocation are provenance records too",
+    "scope is one action on one target — a token that authorizes a category is a credential, not a capability"
+  ]
+}

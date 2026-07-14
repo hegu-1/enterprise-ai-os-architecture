@@ -1,0 +1,25 @@
+{
+  "$comment": "Risk-tier policy template — data, not code. Consumed by tools/risk_gate.py. Tier = max(blast_radius, sensitivity); irreversible actions are floored at T2 (a human must ratify) but irreversibility alone never reaches T3 — T3 is for regulated data, mass external reach, or explicit rules. Rules may raise, never lower.",
+  "version": "1.0",
+  "dimensions": {
+    "blast_radius": {"self": 0, "team": 1, "org": 2, "external": 2, "external_mass": 3},
+    "data_sensitivity": {"public": 0, "internal": 0, "confidential": 1, "regulated": 3},
+    "irreversible_floor": 2
+  },
+  "tier_gates": {
+    "T0": "auto",
+    "T1": "auto_with_review",
+    "T2": "human_ratify",
+    "T3": "multi_party"
+  },
+  "rules": [
+    {"match_action": "billing.*", "min_tier": "T2", "why": "money movement never below human_ratify, whatever the computed score"},
+    {"match_action": "policy.update", "min_tier": "T3", "why": "changing the rules IS the highest-risk action in the system"},
+    {"match_action": "memory.write.L4", "gate": "forbid", "why": "telos is human-authored only; agents may propose in L2, never write L4"}
+  ],
+  "notes": [
+    "min_tier raises the computed tier, never lowers it — rules cannot weaken the computed floor",
+    "keep rules FEW; if you have 50 rules the dimensions are wrong",
+    "version this file and run its test cases (gate-cases) in CI on every change"
+  ]
+}

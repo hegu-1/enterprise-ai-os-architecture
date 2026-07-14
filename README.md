@@ -39,6 +39,27 @@ flowchart TB
 
 The two blue layers — **③ Memory** and **⑦ Governance** — are the moat. The five grey layers are commodity: everyone gets them, and they converge.
 
+## How to use this repo
+
+This is not just the paper — it's an **adoption kit**. Everything below is copyable, and CI
+runs the tools against the example environments on every push (green badge = what you're copying runs):
+
+| You want to… | Go to |
+|---|---|
+| Adopt this at your company, starting from layer ① | [`adoption/playbook.md`](adoption/playbook.md) — four phases with exit criteria |
+| Know where you stand today | [`adoption/maturity-model.md`](adoption/maturity-model.md) — score yourself per layer |
+| Build a specific layer | [`layers/01-substrate/`](layers/01-substrate/) → [`07-governance/`](layers/07-governance/) — per-layer guide + copyable templates + acceptance checklist |
+| See it as a running whole | [`examples/`](examples/) — two fictional but production-shaped environments: [BrightPath](examples/brightpath-learning/README.md) (45-person startup) and [Meridian](examples/meridian-freight/README.md) (12,000-person enterprise), same kernel, different scale |
+| Verify it actually runs | `./checks.sh` — zero-dependency validators (risk gate, provenance audit, PII scrub) over the example environments; same thing CI runs |
+
+```bash
+git clone https://github.com/hegu-1/enterprise-ai-os-architecture && cd enterprise-ai-os-architecture
+./checks.sh   # python3 stdlib only — no installs
+```
+
+Start at [`adoption/playbook.md`](adoption/playbook.md), Phase 0: the kernel files (RBAC matrix,
+risk-tier policy, provenance validation in CI) come *before* any agent does.
+
 ## Receipts
 
 Derived from a working system, not a slide. The mechanism has been run, not just argued:
@@ -157,7 +178,7 @@ The kernel this architecture rests on (provenance / drift / judgment / anti-sile
 
 - [coevolution-kernel](https://github.com/hegu-1/coevolution-kernel) — the kernel thesis (human judgment ↔ self-evolving agents)
 - [personal-memory-vault-starter](https://github.com/hegu-1/personal-memory-vault-starter) — the n=1-scale structure, cloneable
-- [中文版](README.zh-CN.md) — Chinese version of this paper
+- [中文版](README.zh-CN.md) — Chinese version of this paper (chapter files in [`docs/`](docs/))
 
 ---
 

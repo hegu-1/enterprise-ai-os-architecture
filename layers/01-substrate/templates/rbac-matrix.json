@@ -1,0 +1,61 @@
+{
+  "$comment": "RBAC matrix template — version this file in git; changes require review. Principals include AGENTS, not just humans. Copy, replace roles/resources with your own.",
+  "version": "1.0",
+  "resources": {
+    "memory.graph": "the shared memory layer (③)",
+    "memory.graph.finance": "finance-scoped partition of memory",
+    "tools.crm": "CRM read/write via tool gateway (⑤)",
+    "tools.billing": "billing actions via tool gateway (⑤)",
+    "tools.email.customer": "outbound customer email",
+    "audit.log": "governance audit trail (⑦)"
+  },
+  "roles": [
+    {
+      "role": "ops_specialist",
+      "kind": "human",
+      "grants": [
+        {"resource": "memory.graph", "actions": ["read", "write"]},
+        {"resource": "tools.crm", "actions": ["read", "write"]},
+        {"resource": "tools.email.customer", "actions": ["send"]}
+      ]
+    },
+    {
+      "role": "finance_analyst",
+      "kind": "human",
+      "grants": [
+        {"resource": "memory.graph", "actions": ["read"]},
+        {"resource": "memory.graph.finance", "actions": ["read", "write"]},
+        {"resource": "tools.billing", "actions": ["read"]}
+      ]
+    },
+    {
+      "role": "agent.triage",
+      "kind": "agent",
+      "on_behalf_of": "ops_specialist",
+      "grants": [
+        {"resource": "memory.graph", "actions": ["read", "write"]},
+        {"resource": "tools.crm", "actions": ["read"]}
+      ],
+      "denied": [
+        {"resource": "tools.email.customer", "actions": ["send"], "why": "outbound is gated by ⑦; agent drafts, human sends"}
+      ]
+    },
+    {
+      "role": "agent.billing-reconciler",
+      "kind": "agent",
+      "on_behalf_of": "finance_analyst",
+      "grants": [
+        {"resource": "tools.billing", "actions": ["read"]},
+        {"resource": "memory.graph.finance", "actions": ["read", "write"]}
+      ],
+      "denied": [
+        {"resource": "tools.billing", "actions": ["refund", "charge"], "why": "money movement requires a capability token (⑦)"}
+      ]
+    }
+  ],
+  "invariants": [
+    "every agent role names on_behalf_of — the human whose authority it extends",
+    "audit.log is append-only for all roles; no role has delete",
+    "a denied entry documents WHY, so the boundary survives team turnover"
+  ]
+}

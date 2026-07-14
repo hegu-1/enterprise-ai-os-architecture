@@ -1,6 +1,6 @@
 # 04 · 落地、战略与边界
 
-> [English (full paper) →](README.md) · [← 中文总览](README.zh-CN.md)
+> [English (full paper) →](../README.md) · [← 中文总览](../README.zh-CN.md)
 
 ## 落地 sequence
 

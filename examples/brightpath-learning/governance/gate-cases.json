@@ -1,0 +1,50 @@
+{
+  "$comment": "Test cases for risk-policy.json — run in CI by layers/07-governance/tools/risk_gate.py --cases. Every policy change must keep these green (or change them consciously, in the same reviewed commit).",
+  "cases": [
+    {
+      "name": "agent writes an episodic memory node",
+      "action": {"action": "memory.write.L1", "blast_radius": "team", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T1", "expect_gate": "auto_with_review"
+    },
+    {
+      "name": "triage agent sends a customer reply (drafted, human ratifies)",
+      "action": {"action": "helpdesk.send_reply", "blast_radius": "external", "data_sensitivity": "confidential", "reversible": false},
+      "expect_tier": "T2", "expect_gate": "human_ratify"
+    },
+    {
+      "name": "refund — regulated money movement",
+      "action": {"action": "billing.issue_refund", "blast_radius": "external", "data_sensitivity": "regulated", "reversible": false},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    },
+    {
+      "name": "editing a draft course module",
+      "action": {"action": "cms.update_draft", "blast_radius": "team", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T1", "expect_gate": "auto_with_review"
+    },
+    {
+      "name": "publishing a course page — human act by rule",
+      "action": {"action": "cms.publish", "blast_radius": "org", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T2", "expect_gate": "human_ratify"
+    },
+    {
+      "name": "agent attempts to write telos (L4) — refused",
+      "action": {"action": "memory.write.L4", "blast_radius": "org", "data_sensitivity": "internal", "reversible": false},
+      "expect_tier": "T2", "expect_gate": "forbid"
+    },
+    {
+      "name": "changing the risk policy itself",
+      "action": {"action": "policy.update", "blast_radius": "org", "data_sensitivity": "internal", "reversible": true},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    },
+    {
+      "name": "low-risk billing housekeeping still floors at T2 by rule",
+      "action": {"action": "billing.sync_invoice_copy", "blast_radius": "team", "data_sensitivity": "confidential", "reversible": true},
+      "expect_tier": "T2", "expect_gate": "human_ratify"
+    },
+    {
+      "name": "mass announcement to all learners",
+      "action": {"action": "email.send_campaign", "blast_radius": "external_mass", "data_sensitivity": "internal", "reversible": false},
+      "expect_tier": "T3", "expect_gate": "multi_party"
+    }
+  ]
+}

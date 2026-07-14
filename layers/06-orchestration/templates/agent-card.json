@@ -1,0 +1,23 @@
+{
+  "$comment": "Agent card template — the discoverable descriptor every agent publishes. Cross-BU delegation happens by card discovery, not hardcoded wiring.",
+  "card_version": "1.0",
+  "agent": "agent.triage",
+  "bu": "operations",
+  "principal": "agent.triage",
+  "on_behalf_of": "ops_specialist",
+  "purpose": "classify and route inbound signals (tickets, messages) to the owning queue with a drafted first response",
+  "accepts": [
+    {"task": "triage.inbound", "input": "event envelope (② schema)", "sla": "p95 < 60s"}
+  ],
+  "produces": [
+    {"output": "routing decision + draft reply", "written_to": "memory L1 (authority=agent_inferred)"}
+  ],
+  "tools_used": ["crm.lookup_account", "email.send_customer (draft only — send is human-gated)"],
+  "cost_profile": {"tier": "small (④ routing)", "approx_per_task": "low"},
+  "escalation": {
+    "to": "ops_specialist",
+    "when": ["confidence < 0.7", "sender flagged legal/regulatory", "any ⑦ gate above auto"]
+  },
+  "owner_team": "ops",
+  "runbook": "link to this agent's runbook in your docs"
+}

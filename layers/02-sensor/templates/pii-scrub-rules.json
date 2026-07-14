@@ -1,0 +1,36 @@
+{
+  "$comment": "Entry-time PII scrub rules. A STARTING set — extend per jurisdiction and per data class you actually handle. Consumed by tools/pii_scrub.py.",
+  "version": "1.0",
+  "rules": [
+    {
+      "name": "email",
+      "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}",
+      "replace": "<EMAIL>"
+    },
+    {
+      "name": "phone_intl",
+      "pattern": "\\+\\d{1,3}[ -]?\\(?\\d{1,4}\\)?([ -]?\\d{2,4}){2,4}",
+      "replace": "<PHONE>"
+    },
+    {
+      "name": "payment_card",
+      "pattern": "\\b(?:\\d[ -]?){13,16}\\b",
+      "replace": "<CARD>"
+    },
+    {
+      "name": "ssn_like_id",
+      "pattern": "\\b\\d{3}-\\d{2}-\\d{4}\\b",
+      "replace": "<GOV_ID>"
+    },
+    {
+      "name": "ip_address",
+      "pattern": "\\b\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\b",
+      "replace": "<IP>"
+    }
+  ],
+  "scrub_fields": ["payload"],
+  "notes": [
+    "pattern-based scrubbing catches structure, not context — for names and free-text identifiers add an NER pass in front of these rules",
+    "quarantine, don't drop: events that fail scrubbing go to a locked queue for human review"
+  ]
+}

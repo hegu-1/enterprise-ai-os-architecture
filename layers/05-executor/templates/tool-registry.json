@@ -1,0 +1,53 @@
+{
+  "$comment": "Tool registry template — one entry per tool the gateway exposes. The gateway refuses mutating tools without idempotency/compensation declarations.",
+  "version": "1.0",
+  "tools": [
+    {
+      "tool": "crm.lookup_account",
+      "mcp_server": "mcp-crm",
+      "mutating": false,
+      "effects": [{"resource": "tools.crm", "action": "read"}],
+      "sensitivity": "confidential",
+      "dry_run_supported": null
+    },
+    {
+      "tool": "crm.update_account_stage",
+      "mcp_server": "mcp-crm",
+      "mutating": true,
+      "effects": [{"resource": "tools.crm", "action": "write"}],
+      "sensitivity": "confidential",
+      "risk_hint": {"blast_radius": "team", "reversible": true},
+      "idempotency": "natural key (account_id, stage, ts-bucket)",
+      "compensation": "restore previous stage from audit record",
+      "dry_run_supported": true
+    },
+    {
+      "tool": "billing.issue_refund",
+      "mcp_server": "mcp-billing",
+      "mutating": true,
+      "effects": [{"resource": "tools.billing", "action": "refund"}],
+      "sensitivity": "regulated",
+      "risk_hint": {"blast_radius": "external", "reversible": false},
+      "idempotency": "client-generated refund_request_id; server dedups",
+      "compensation": "none — money movement is compensated by a NEW forward transaction, never silently reversed",
+      "dry_run_supported": true,
+      "note": "irreversible + external => ⑦ will gate this at human_ratify or above regardless of caller"
+    },
+    {
+      "tool": "email.send_customer",
+      "mcp_server": "mcp-comms",
+      "mutating": true,
+      "effects": [{"resource": "tools.email.customer", "action": "send"}],
+      "sensitivity": "confidential",
+      "risk_hint": {"blast_radius": "external", "reversible": false},
+      "idempotency": "thread_id + content hash — same draft never sends twice",
+      "compensation": "follow-up correction email (imperfect; hence the gate)",
+      "dry_run_supported": true
+    }
+  ],
+  "invariants": [
+    "gateway resolves the caller's effects against ① rbac-matrix.json per call, per principal",
+    "gateway calls ⑦ risk gate BEFORE executing any mutating tool; parked (awaiting approval) is a success state",
+    "every call — allowed, parked, or refused — emits a provenance record (⑦)"
+  ]
+}
