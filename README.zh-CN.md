@@ -4,7 +4,7 @@
 
 > 一份自底向上的企业 AI 参考架构——从一个跑通的 n=1 系统推算出来，而不是从厂商 PPT 自顶向下。作者：naze。
 
-**[English](README.md)** · **中文**
+**[English](README.md)** · **中文** · [![checks](https://github.com/hegu-1/enterprise-ai-os-architecture/actions/workflows/checks.yml/badge.svg)](https://github.com/hegu-1/enterprise-ai-os-architecture/actions/workflows/checks.yml)
 
 ---
 

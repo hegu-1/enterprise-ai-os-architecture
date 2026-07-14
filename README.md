@@ -4,7 +4,7 @@
 
 > A reference architecture for company-wide AI, derived bottom-up from a working n=1 system rather than top-down from a vendor deck. Author: naze.
 
-**English** · **[中文](README.zh-CN.md)**
+**English** · **[中文](README.zh-CN.md)** · [![checks](https://github.com/hegu-1/enterprise-ai-os-architecture/actions/workflows/checks.yml/badge.svg)](https://github.com/hegu-1/enterprise-ai-os-architecture/actions/workflows/checks.yml)
 
 ---
 
